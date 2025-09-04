@@ -71,7 +71,7 @@ class Network(object):
 
 
 
-        delta = activations[-1] - y #Aquí implementé la función de costos Cross-Entropy, como tal no es más que un cambio al cálculo de delta.
+        delta = self.Cross_Entropy(activations[-1], y) #Aquí implementé la función de costos Cross-Entropy, como tal no es más que un cambio al cálculo de delta.
         # La cross-entropy lo que hace es eliminar la derivada de la función sigmoide, por eso es poderosa ya que al eliminar esta derivada
         # ya no dependerá de este factor y por lo tanto ya no "aprende lento", ahora solo depende del error delta.
         # Sin embargo, las capas ocultas aún dependen de las derivadas de la sigmoide y los pesos para propagar el error, por eso solo esta
@@ -99,12 +99,13 @@ class Network(object):
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results) 
 
-    def cost_derivative(self, output_activations, y):
-        """Return the vector of partial derivatives \\partial C_x /
-        partial a for the output activations."""
+    def Cross_Entropy(self, output_activations, y):
+        ### Esta función hace lo mismo que hacía "cost_derivative", solo que la renombré
+        ### para dejar en claro que Cross_Entropy la podemos colocar como una función
+        ### de python
 
         return (output_activations-y)
-    
+
 def sigmoid(z):
     """The sigmoid function."""
     return 1.0/(1.0+np.exp(-z))
@@ -112,3 +113,4 @@ def sigmoid(z):
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
+
