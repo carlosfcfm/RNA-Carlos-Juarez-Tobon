@@ -71,7 +71,14 @@ class Network(object):
 
 
 
-        delta = activations[-1] - y
+        delta = activations[-1] - y #Aquí implementé la función de costos Cross-Entropy, como tal no es más que un cambio al cálculo de delta.
+        # La cross-entropy lo que hace es eliminar la derivada de la función sigmoide, por eso es poderosa ya que al eliminar esta derivada
+        # ya no dependerá de este factor y por lo tanto ya no "aprende lento", ahora solo depende del error delta.
+        # Sin embargo, las capas ocultas aún dependen de las derivadas de la sigmoide y los pesos para propagar el error, por eso solo esta
+        # línea de código se actualiza
+
+
+        
 
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose()) 
