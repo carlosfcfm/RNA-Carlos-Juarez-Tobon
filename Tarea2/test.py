@@ -15,8 +15,8 @@ test_data = list(test_data)
 # 10 neuronas en la capa de salida (output)
 net=network.Network([784,30,10])
 
-# Aquí definimos 15 épocas, con un mini_batch de tamaño 10 y un learning rate de 0.9
-net.SGD( training_data, 15, 10, 0.9, test_data=test_data)
+# Aquí definimos 15 épocas, con un mini_batch de tamaño 10 y un learning rate de 0.1
+net.SGD( training_data, 15, 10, 0.1, test_data=test_data)
 
 # Aquí abrimos el archivo ".pkl" generado al finalizar el entrenamiento y lo guardamos
 archivo = open("red_prueba.pkl",'wb') 
