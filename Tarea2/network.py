@@ -28,8 +28,8 @@ class Network(object):
         return a
 
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, eta,beta_1,beta_2,
+            test_data=None): # Aquí solo he actualizado el argumento de la función con los hiperparámetros beta_1, beta_2
 
         training_data = list(training_data)
         n = len(training_data)
@@ -44,25 +44,51 @@ class Network(object):
                 training_data[k:k+mini_batch_size]
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+                self.update_mini_batch(mini_batch, eta,beta_1,beta_2)# Aquí actualicé el argumento de la función con los hiperparámetros beta_1, beta_2
             if test_data:
                 print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test))
             else:
                 print("Epoch {} complete".format(j))
 
 
-    def update_mini_batch(self, mini_batch, eta):
-
+    def update_mini_batch(self, mini_batch, eta, beta_1, beta_2): # Aquí actualicé el argumento de la función con los hiperparámetros beta_1, beta_2
+        # Esto es un intento de añadir el Optimizador Adam en el código, pero
+        # Para actualizar los self.weights algo  o me cuadra, tengo problemas para definir
+        # que utilizar en el for para posteriormente utilizar el zip.
+        # El optimizador Adam lo quiero definir aquí en el update_mini_batch
+        # porque en la parte del código de SGD solo definimos los datos de entrenamiento y hacemos
+        # el proceso de barajear los mini batches para entrenar. 
+        # Aquí en update_mini_batch es donde actualizamos los pesos y bias dependiendo
+        # de los gradientes nabla_b y nabla_w que se actualizaron en backpropagation.
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+        # Aquí inicializo los momentos del optimizador Adam, el primer momento como M
+        # el segundo momento como R. Las w's y b's de subindices las trato para distinguir entre momentos
+        # de bias y de pesos.
+        M_tw = [np.zeros(w.shape) for w in self.weights] 
+        R_tw = [np.zeros(w.shape) for w in self.weights] 
+        M_tb = [np.zeros(b.shape) for b in self.biases] 
+        R_tb = [np.zeros(b.shape) for b in self.biases] 
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw
+        # Aquí hago las operaciones para los momentos, con als fórmulas vistas en clase
+        M_tb = beta_1*M_tb + (1-beta_1)*nabla_b 
+        R_tb = beta_2*R_tb + (1-beta_2)*(nabla_b)**2 
+        M_tw = beta_1*M_tw + (1-beta_1)*nabla_w 
+        R_tw = beta_2*R_tw + (1-beta_2)*(nabla_w)**2
+        m_hatb = M_tb/(1-beta_1) 
+        r_hatb = R_tb/(1-beta_2) 
+        m_hatw = M_tw/(1-beta_1) 
+        r_hatw = R_tw/(1-beta_2)
+        # Aquí actualizo los pesos solamente, pero como ya dije aún no se como avanzar aquí así
+        # que en este commit envió mi avance.
+        self.weights = [w+(eta/len(mini_batch))*m_hatw/((np.sqrt(r_hatw))+1e-18) 
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
+        
         
 
     def backprop(self, x, y):
