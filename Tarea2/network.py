@@ -8,8 +8,19 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x)
+        self.weights = [np.random.randn(y, x)/np.sqrt(x) #En esta línea implemento la mejora para inicializar pesos
                         for x, y in zip(sizes[:-1], sizes[1:])]
+        # Originalmente inicializamos los pesos en "self.weights" con números aleatorios que siguen una distribución
+        # Gaussiana con media 0 y desviación estándar 1. El problema de esto es que las neuronas se pueden saturar muy seguido,
+        # esa saturación implica que las neuronas dejan de aprender. Durante backpropagation, los gradientes multiplican las derivadas de cada 
+        # neurona y si muchas neuronas están saturadas, los gradientes se vuelven muy pequeños, así que se estanca el aprendizaje.
+        # Nos evitamos este problema al inicializar los pesos con números aleatorios que siguen una distribución Gaussiana con media 0 pero
+        # desviación estándar 1/sqrt(x) donde sqrt(x) es la raíz del número de neuronas de entrada (input). La varianza ahora es pequeña y con esto
+        # cuando las neuronas calculen las z's, estas no serán muy grandes ni muy pequeñas al inicio, evitando el problema del gradiente.
+
+        #Lo único que hago en self.weights es que al hacer el array de pesos, a cada elemento del array
+        # lo divido por la raíz del número de inputs (entradas) de la primera capa. Así hemos modificado 
+        # la desviación estándar de esos números con "np.random.randn(y, x)/np.sqrt(x)"
     
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights):
