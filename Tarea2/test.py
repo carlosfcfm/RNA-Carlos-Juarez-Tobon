@@ -15,12 +15,12 @@ test_data = list(test_data)
 # 10 neuronas en la capa de salida (output)
 net=network.Network([784,30,10])
 
-# Aquí definimos 15 épocas, con un mini_batch de tamaño 10 y un learning rate de 0.1
+# Aquí definimos 15 épocas, con un mini_batch de tamaño 10 y un learning rate de 0.001
 # Lo hiperparámetro beta_1 y beta_2 tienen valores de 0.9 y 0.99 respectivamente
-net.SGD(training_data, 15, 10, 0.1, 0.9, 0.99, test_data=test_data)
+net.SGD(training_data, 15, 10, 0.001, 0.9, 0.99, test_data=test_data)
 
 # Aquí abrimos el archivo ".pkl" generado al finalizar el entrenamiento y lo guardamos
-archivo = open("red_prueba.pkl",'wb') 
+archivo = open("red_prueba_adam.pkl",'wb') 
 pickle.dump(net,archivo) 
 archivo.close() 
 exit()
