@@ -7,14 +7,20 @@ from tensorflow.keras.optimizers import RMSprop, SGD, Adam
 from tensorflow.keras import regularizers
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 import mlflow
-import mlflow.keras
+import os
+from getpass import getpass
 
-
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
-mlflow.autolog()
-
+############### Inicializamos conectividad con el repositorio "Experimentos" en DagsHub ###########
+REPO_NAME= "Experimentos"
+REPO_OWNER= "carlosfcfm"  #Escribir nombre de repositorio
+USER_NAME = "carlosfcfm" #Escribir su usuario
+os.environ['MLFLOW_TRACKING_USERNAME'] = USER_NAME
+os.environ['MLFLOW_TRACKING_PASSWORD'] = getpass('Enter your DAGsHub access token or password: ')
+mlflow.set_tracking_uri(f'https://dagshub.com/{REPO_OWNER}/{REPO_NAME}.mlflow')
 dataset=mnist.load_data()
+###################################################################################################
 
+####################### Cargamos datos del mnist y aplanamos los datos de entrenamiento y de test ###
 (x_train, y_train), (x_test, y_test) = dataset
 
 x_trainv = x_train.reshape(60000, 784)
@@ -28,20 +34,27 @@ x_testv /= 255.
 num_classes=10
 y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
+####################################################################################################
 
-
+############# Diseño de la red #################################
 model = Sequential()
 model.add(Dense(40, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(20, activation='relu'))
+model.add(Dense(20, activation='relu')) # Añadí una capa oculta con 20 neuronas 
 model.add(Dense(num_classes, activation='softmax')) 
 model.summary()
+###############################################################
+
+
+
+#### Setup y entrenamiento del modelo con logging de MLflow y callbacks ################################
 
 filepath = "best_model.keras"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=10,verbose=1)
 mlflow.set_experiment("experimento1")
 
-mlflow.start_run(nested='TRUE')
+mlflow.start_run(nested=True)
+mlflow.tensorflow.autolog(log_models=False)
 model.compile(loss="categorical_crossentropy",optimizer=Adam(learning_rate=0.0005),metrics=['accuracy'])
 history = model.fit(x_trainv, y_trainc,
                     batch_size = 12,
@@ -50,10 +63,12 @@ history = model.fit(x_trainv, y_trainc,
                     validation_data=(x_testv, y_testc),
 
                     callbacks=[earlystop, checkpoint])
-mlflow.keras.save_model(model, "best_model")
-mlflow.log_artifact("best_model", artifact_path="models")
+model.save("best_model.keras")
+mlflow.log_artifact("best_model.keras", artifact_path="models")
 mlflow.end_run()
+##########################################################################################################
 
 
 score = model.evaluate(x_testv, y_testc, verbose=1) #evaluar la eficiencia del modelo
 print(score)
+
