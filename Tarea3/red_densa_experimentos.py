@@ -10,6 +10,13 @@ import mlflow
 import os
 from getpass import getpass
 
+#Experimento 2 ajustes: #
+# batch_size = 20       #
+# Optimizador : RMSprop #
+# Learning rate: 0.001 #
+# Capa 3: modifiqué la capa 3 y ahora tiene 30 neuronas #
+
+
 ############### Inicializamos conectividad con el repositorio "Experimentos" en DagsHub ###########
 REPO_NAME= "Experimentos"
 REPO_OWNER= "carlosfcfm"  #Escribir nombre de repositorio
@@ -39,7 +46,7 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 ############# Diseño de la red #################################
 model = Sequential()
 model.add(Dense(40, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(20, activation='relu')) # Añadí una capa oculta con 20 neuronas 
+model.add(Dense(30, activation='relu')) # Añadí una capa oculta con 20 neuronas 
 model.add(Dense(num_classes, activation='softmax')) 
 model.summary()
 ###############################################################
@@ -48,23 +55,23 @@ model.summary()
 
 #### Setup y entrenamiento del modelo con logging de MLflow y callbacks ################################
 
-filepath = "best_model.keras"
+filepath = "best_model_exp2.keras"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=10,verbose=1)
-mlflow.set_experiment("experimento1")
+mlflow.set_experiment("experimentos_sin_regularizacion")
 
 mlflow.start_run(nested=True)
 mlflow.tensorflow.autolog(log_models=False)
-model.compile(loss="categorical_crossentropy",optimizer=Adam(learning_rate=0.0005),metrics=['accuracy'])
+model.compile(loss="categorical_crossentropy",optimizer=RMSprop(learning_rate=0.001),metrics=['accuracy'])
 history = model.fit(x_trainv, y_trainc,
-                    batch_size = 12,
+                    batch_size = 20,
                     epochs = 15,
                     verbose=1,
                     validation_data=(x_testv, y_testc),
 
                     callbacks=[earlystop, checkpoint])
-model.save("best_model.keras")
-mlflow.log_artifact("best_model.keras", artifact_path="models")
+model.save("best_model_exp2.keras")
+mlflow.log_artifact("best_model_exp2.keras", artifact_path="models")
 mlflow.end_run()
 ##########################################################################################################
 
