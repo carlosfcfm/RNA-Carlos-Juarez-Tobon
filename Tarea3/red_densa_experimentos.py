@@ -10,12 +10,35 @@ import mlflow
 import os
 from getpass import getpass
 
+###### RESUMEN DE LOS TRES EXPERIMENTOS #######
+
+# Aquí solo añado los cambios realizados respecto a la versión
+# o experimento anterior.  
+
+#Experimento 1 ajustes: #
+# batch_size = 12       #
+# Optimizador : Adam #
+# Learning rate: 0.0003 #
+# Capa 2: 40 neuronas #
+# Capa 3: 20 neuronas + relu#
+# Función de costos: categorical_crossentropy#
+
+
 #Experimento 2 ajustes: #
 # batch_size = 20       #
 # Optimizador : RMSprop #
 # Learning rate: 0.001 #
-# Capa 3: modifiqué la capa 3 y ahora tiene 30 neuronas #
+# Capa 3: 30 neuronas + relu #
 
+
+#Experimento 3 #
+# batch_size = 40   #
+# Optimizador : Adam #
+# Learning rate: 0.00025 #
+# Capa 2: 50 neuronas + relu #
+# Capa 3: 30 neuronas + relu#
+
+##################################################################
 
 ############### Inicializamos conectividad con el repositorio "Experimentos" en DagsHub ###########
 REPO_NAME= "Experimentos"
@@ -45,9 +68,9 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 ############# Diseño de la red #################################
 model = Sequential()
-model.add(Dense(40, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(30, activation='relu')) # Añadí una capa oculta con 20 neuronas 
-model.add(Dense(num_classes, activation='softmax')) 
+model.add(Dense(50, activation='relu', input_shape=(784,))) # Capa 1 (Input) + Capa 2 (oculta)
+model.add(Dense(30, activation='relu')) # Capa 3
+model.add(Dense(num_classes, activation='softmax')) # Capa 4 Output
 model.summary()
 ###############################################################
 
@@ -55,23 +78,23 @@ model.summary()
 
 #### Setup y entrenamiento del modelo con logging de MLflow y callbacks ################################
 
-filepath = "best_model_exp2.keras"
+filepath = "best_model_exp3.keras"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=10,verbose=1)
+earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=15,verbose=1)
 mlflow.set_experiment("experimentos_sin_regularizacion")
 
 mlflow.start_run(nested=True)
 mlflow.tensorflow.autolog(log_models=False)
-model.compile(loss="categorical_crossentropy",optimizer=RMSprop(learning_rate=0.001),metrics=['accuracy'])
+model.compile(loss="categorical_crossentropy",optimizer=Adam(learning_rate=0.00025),metrics=['accuracy'])
 history = model.fit(x_trainv, y_trainc,
-                    batch_size = 20,
+                    batch_size = 40,
                     epochs = 15,
                     verbose=1,
                     validation_data=(x_testv, y_testc),
 
                     callbacks=[earlystop, checkpoint])
-model.save("best_model_exp2.keras")
-mlflow.log_artifact("best_model_exp2.keras", artifact_path="models")
+model.save(filepath)
+mlflow.log_artifact(filepath, artifact_path="models")
 mlflow.end_run()
 ##########################################################################################################
 
