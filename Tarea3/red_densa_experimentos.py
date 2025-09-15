@@ -10,7 +10,7 @@ import mlflow
 import os
 from getpass import getpass
 
-###### RESUMEN DE LOS TRES EXPERIMENTOS #######
+###### RESUMEN DE LOS TRES EXPERIMENTOS SIN REGULARIZACIÓN #######
 
 # Aquí solo añado los cambios realizados respecto a la versión
 # o experimento anterior.  
@@ -68,7 +68,7 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 ############# Diseño de la red #################################
 model = Sequential()
-model.add(Dense(50, activation='relu', input_shape=(784,))) # Capa 1 (Input) + Capa 2 (oculta)
+model.add(Dense(50, activation='relu', input_shape=(784,),kernel_regularizer=regularizers.L1(0.01))) # Capa 1 (Input) + Capa 2 (oculta)
 model.add(Dense(30, activation='relu')) # Capa 3
 model.add(Dense(num_classes, activation='softmax')) # Capa 4 Output
 model.summary()
@@ -78,17 +78,17 @@ model.summary()
 
 #### Setup y entrenamiento del modelo con logging de MLflow y callbacks ################################
 
-filepath = "best_model_exp3.keras"
+filepath = "best_model_regl1.keras"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=15,verbose=1)
-mlflow.set_experiment("experimentos_sin_regularizacion")
+mlflow.set_experiment("experimentos_con_regularizacion")
 
 mlflow.start_run(nested=True)
 mlflow.tensorflow.autolog(log_models=False)
 model.compile(loss="categorical_crossentropy",optimizer=Adam(learning_rate=0.00025),metrics=['accuracy'])
 history = model.fit(x_trainv, y_trainc,
                     batch_size = 40,
-                    epochs = 15,
+                    epochs = 40,
                     verbose=1,
                     validation_data=(x_testv, y_testc),
 
