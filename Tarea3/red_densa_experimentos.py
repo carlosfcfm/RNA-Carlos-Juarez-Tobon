@@ -68,7 +68,7 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 ############# Diseño de la red #################################
 model = Sequential()
-model.add(Dense(50, activation='relu', input_shape=(784,),kernel_regularizer=regularizers.L1(0.01))) # Capa 1 (Input) + Capa 2 (oculta)
+model.add(Dense(50, activation='relu', input_shape=(784,),kernel_regularizer=regularizers.L1(0.001))) # Capa 1 (Input) + Capa 2 (oculta)
 model.add(Dense(30, activation='relu')) # Capa 3
 model.add(Dense(num_classes, activation='softmax')) # Capa 4 Output
 model.summary()
