@@ -68,9 +68,9 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 ############# Diseño de la red #################################
 model = Sequential()
-model.add(Dense(50, activation='relu', input_shape=(784,),)) # Capa 1 (Input) + Capa 2 (oculta)
+model.add(Dense(50, activation='relu', input_shape=(784,),kernel_regularizer=regularizers.L1L2(l1=0.0001, l2=0.0001))) # Capa 1 (Input) + Capa 2 (oculta)
 model.add(Dropout(0.2))
-model.add(Dense(30, activation='relu')) # Capa 3
+model.add(Dense(30, activation='relu',kernel_regularizer=regularizers.L1L2(l1=0.0001, l2=0.0001))) # Capa 3
 model.add(Dropout(0.2))
 model.add(Dense(num_classes, activation='softmax')) # Capa 4 Output
 model.summary()
@@ -80,7 +80,7 @@ model.summary()
 
 #### Setup y entrenamiento del modelo con logging de MLflow y callbacks ################################
 
-filepath = "best_model_dropout.keras"
+filepath = "best_model_dropout_l1l2.keras"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 earlystop = EarlyStopping(monitor='val_loss',mode='min',restore_best_weights=True, patience=15,verbose=1)
 mlflow.set_experiment("experimentos_con_regularizacion")
