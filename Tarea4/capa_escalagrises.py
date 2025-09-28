@@ -4,7 +4,7 @@ from tensorflow.keras.datasets import cifar10
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Aquí diseñamos la capa con la clase "Capa Grises" heredada de keras.layers.Layer
+## Aquí diseñamos la capa con la clase "Capa Grises" heredada de keras.layers.Layer
 class CapaGrises(keras.layers.Layer):
     def __init__(self):
         super(CapaGrises,self).__init__() # Lamamos al constructor de la clase padre, 
