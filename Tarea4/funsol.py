@@ -27,7 +27,7 @@ class Funsol(keras.Model):
     def train_step(self, data):
         batch_size = 300
         x = tf.random.uniform((batch_size,), minval=-1, maxval=1)
-        eq = 3 * tf.math.sin(np.pi * x)
+        eq = 1 + 2*x + 4*tf.math.pow(x, 3)
 
         with tf.GradientTape() as tape:
             y_pred = self(x, training=True)
@@ -73,6 +73,6 @@ x_testv = tf.linspace(-1,1,100)
 a=model.predict(x_testv)
 
 plt.plot(x_testv,a)
-plt.plot(x_testv, 3 * tf.math.sin(np.pi * x))
+plt.plot(x_testv, 1 + 2*x + 4*tf.math.pow(x, 3))
 plt.show()
 
