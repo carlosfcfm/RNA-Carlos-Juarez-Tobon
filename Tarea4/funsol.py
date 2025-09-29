@@ -27,7 +27,7 @@ class Funsol(keras.Model):
     def train_step(self, data):
         batch_size = 10
         x = tf.random.uniform((batch_size,), minval=-1, maxval=1)
-        eq = 3 * tf.math.sin(np.pi* x)
+        eq = 1 + 2*x + 4*tf.math.pow(x, 3)
 
 
         with tf.GradientTape() as tape:
@@ -65,13 +65,13 @@ class SinTransform(tf.keras.layers.Layer):
 
 inputs = keras.Input(shape=(1,))
 print(inputs)
-x = SinTransform(5)(inputs)
+x = SinTransform(4)(inputs)
 model = Funsol(inputs=inputs,outputs=x)
 model.summary()
 ###################################################################
 
 #### Setup y entrenamiento del modelo con logging de MLflow #########################
-filepath = "best_model_funsol1.keras"
+filepath = "best_model_funsol2.keras"
 mlflow.set_experiment("Funsol")
 
 mlflow.start_run(nested=True)
@@ -80,7 +80,7 @@ mlflow.tensorflow.autolog(log_models=False)
 
 
 ########## Compilación del modelo y entrenamiento ##########################
-model.compile(optimizer=SGD(learning_rate=0.01), metrics=['loss'])
+model.compile(optimizer=SGD(learning_rate=0.05), metrics=['loss'])
 x=tf.linspace(-1,1,100)
 history = model.fit(x,epochs=30,verbose=1)
 ###########################################################################
@@ -95,5 +95,5 @@ x_testv = tf.linspace(-1,1,100)
 a=model.predict(x_testv)
 
 plt.plot(x_testv,a)
-plt.plot(x_testv, 3 * tf.math.sin(np.pi* x))
+plt.plot(x_testv, 1 + 2 * x_testv + 4 * tf.math.pow(x_testv, 3))
 plt.show()
