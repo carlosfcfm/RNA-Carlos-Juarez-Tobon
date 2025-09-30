@@ -54,10 +54,10 @@ model.summary()
 
 model.compile(optimizer=Adam(learning_rate=0.005),metrics=['loss'])
 
-x=tf.linspace(-2,2,100)
+x=tf.linspace(-5,5,100)
 history = model.fit(x,epochs=400,verbose=1)
 
-x_testv = tf.linspace(-2,2,100)
+x_testv = tf.linspace(-5,5,100)
 a=model.predict(x_testv)
 plt.plot(x_testv,a,label="aprox")
 plt.plot(x_testv,(((x**2)-2)*np.sin(x)*(1/x)+(2*np.cos(x))),label="exact")
